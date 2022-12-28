@@ -85,6 +85,52 @@ const debounce = (callee, timeoutMs) => {
 
 /***/ }),
 
+/***/ "./src/js/functions/fix-fullheight.js":
+/*!********************************************!*\
+  !*** ./src/js/functions/fix-fullheight.js ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "fixFullheight": () => (/* binding */ fixFullheight)
+/* harmony export */ });
+const fixFullheight = () => {
+  let vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+};
+
+/***/ }),
+
+/***/ "./src/js/functions/throttle.js":
+/*!**************************************!*\
+  !*** ./src/js/functions/throttle.js ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "throttle": () => (/* binding */ throttle)
+/* harmony export */ });
+const throttle = (callee, timeout) => {
+  let timer = null;
+  return function perform() {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+    if (timer) return;
+    timer = setTimeout(() => {
+      callee(...args);
+      clearTimeout(timer);
+      timer = null;
+    }, timeout);
+  };
+};
+
+/***/ }),
+
 /***/ "./src/js/vendor/Draggable.min.js":
 /*!****************************************!*\
   !*** ./src/js/vendor/Draggable.min.js ***!
@@ -16575,7 +16621,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _vendor__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./_vendor */ "./src/js/_vendor.js");
 /* harmony import */ var _functions_check_viewport__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./functions/check-viewport */ "./src/js/functions/check-viewport.js");
 /* harmony import */ var _functions_debouce__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./functions/debouce */ "./src/js/functions/debouce.js");
-/* harmony import */ var swiper_bundle__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! swiper/bundle */ "./node_modules/swiper/swiper-bundle.esm.js");
+/* harmony import */ var _functions_throttle__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./functions/throttle */ "./src/js/functions/throttle.js");
+/* harmony import */ var _functions_fix_fullheight__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./functions/fix-fullheight */ "./src/js/functions/fix-fullheight.js");
+/* harmony import */ var swiper_bundle__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! swiper/bundle */ "./node_modules/swiper/swiper-bundle.esm.js");
+
+
 
 
 
@@ -16589,55 +16639,7 @@ const MODE = {
   LIGHT: 'light-mode',
   DARK: 'dark-mode'
 };
-const gallery = () => {
-  setTimeout(function () {
-    BODY.classList.add('loaded');
-    if ((0,_functions_check_viewport__WEBPACK_IMPORTED_MODULE_1__.isDesktop)()) {
-      Draggable.create('.gallery', {
-        bounds: 'body',
-        inertia: true
-      });
-    }
-  }, 200);
-  setTimeout(function () {
-    toggler.classList.remove('hidden');
-  }, 400);
-};
-const colorModeInit = () => {
-  // 1) Проверяем системные настройки
-  if (MEDIA && MEDIA(QUERY).matches) {
-    BODY.classList.add(MODE.DARK);
-  }
-
-  // 2) Проверяем Local Storage
-  if (STORAGE.mode === MODE.DARK) {
-    BODY.classList.add(MODE.DARK);
-  }
-};
-const colorModeChanger = e => {
-  const newColorScheme = e.matches ? "dark" : "light";
-  if (newColorScheme === "dark") {
-    BODY.classList.add(MODE.DARK);
-    STORAGE.mode = MODE.DARK;
-  } else {
-    BODY.classList.remove(MODE.DARK);
-    STORAGE.mode = MODE.LIGHT;
-  }
-};
-const onTogglerClick = () => {
-  const isDark = BODY.classList.toggle(MODE.DARK);
-  if (isDark) {
-    STORAGE.mode = MODE.DARK;
-  } else {
-    STORAGE.mode = MODE.LIGHT;
-  }
-};
-const onTogglerClickDebounced = (0,_functions_debouce__WEBPACK_IMPORTED_MODULE_2__.debounce)(onTogglerClick, 100);
-window.addEventListener('DOMContentLoaded', colorModeInit);
-MEDIA(QUERY).addEventListener('change', colorModeChanger);
-window.addEventListener('load', gallery);
-toggler.addEventListener('click', onTogglerClickDebounced);
-const swiper = new swiper_bundle__WEBPACK_IMPORTED_MODULE_3__["default"](".mySwiper", {
+const swiper = new swiper_bundle__WEBPACK_IMPORTED_MODULE_5__["default"](".mySwiper", {
   // lazy: true,
   grabCursor: true,
   loop: true,
@@ -16660,6 +16662,61 @@ const swiper = new swiper_bundle__WEBPACK_IMPORTED_MODULE_3__["default"](".mySwi
     nextEl: ".swiper-button-next"
   }
 });
+const gallery = () => {
+  setTimeout(function () {
+    BODY.classList.add('loaded');
+    if ((0,_functions_check_viewport__WEBPACK_IMPORTED_MODULE_1__.isDesktop)()) {
+      Draggable.create('.gallery', {
+        bounds: 'body',
+        inertia: true
+      });
+    }
+  }, 200);
+  setTimeout(function () {
+    toggler.classList.remove('hidden');
+  }, 400);
+};
+const colorModeInit = () => {
+  // 1) Проверяем системные настройки
+  if (MEDIA && MEDIA(QUERY).matches) {
+    BODY.classList.add(MODE.DARK);
+  } else {
+    BODY.classList.remove(MODE.DARK);
+  }
+
+  // 2) Проверяем Local Storage
+  if (STORAGE.mode === MODE.DARK) {
+    BODY.classList.add(MODE.DARK);
+  } else {
+    BODY.classList.remove(MODE.DARK);
+  }
+};
+const colorModeChanger = e => {
+  const newColorScheme = e.matches ? "dark" : "light";
+  if (newColorScheme === "dark") {
+    BODY.classList.add(MODE.DARK);
+    STORAGE.mode = MODE.DARK;
+  } else {
+    BODY.classList.remove(MODE.DARK);
+    STORAGE.mode = MODE.LIGHT;
+  }
+};
+const onTogglerClick = () => {
+  const isDark = BODY.classList.toggle(MODE.DARK);
+  if (isDark) {
+    STORAGE.mode = MODE.DARK;
+  } else {
+    STORAGE.mode = MODE.LIGHT;
+  }
+};
+(0,_functions_fix_fullheight__WEBPACK_IMPORTED_MODULE_4__.fixFullheight)();
+const onTogglerClickDebounced = (0,_functions_debouce__WEBPACK_IMPORTED_MODULE_2__.debounce)(onTogglerClick, 100);
+const fixFullheightThrottled = (0,_functions_throttle__WEBPACK_IMPORTED_MODULE_3__.throttle)(_functions_fix_fullheight__WEBPACK_IMPORTED_MODULE_4__.fixFullheight, 100);
+window.addEventListener('DOMContentLoaded', colorModeInit);
+MEDIA(QUERY).addEventListener('change', colorModeChanger);
+window.addEventListener('load', gallery);
+toggler.addEventListener('click', onTogglerClickDebounced);
+window.addEventListener('resize', fixFullheightThrottled);
 })();
 
 /******/ })()
